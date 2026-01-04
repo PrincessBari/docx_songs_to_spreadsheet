@@ -1,0 +1,51 @@
+from docx import Document
+import pandas as pd
+
+# Load the Word document
+doc = Document("file.docx")  
+
+data = []
+last_artist = None  # to remember the last seen artist
+
+for para in doc.paragraphs:
+    # Normalize spaces (remove leading/trailing and weird Unicode spaces)
+    text = para.text.strip().replace("\u00A0", " ")  # replace non-breaking spaces
+
+    if not text:
+        continue  # skip empty lines
+
+    # Only split on the first hyphen, allow spaces around it
+    if "-" in text:
+        parts = text.split("-", 1)
+        artist_part = parts[0].strip()
+        song_part = parts[1].strip()
+
+        # If the artist part is empty, use last_artist
+        if not artist_part:
+            if last_artist is not None:
+                artist = last_artist
+            else:
+                artist = "Unknown"
+        else:
+            artist = artist_part
+            last_artist = artist  # update last seen artist
+
+        song = song_part
+        data.append({"Artist": artist, "Song": song})
+    else:
+        # Line has no hyphen at all
+        artist = text
+        song = ""
+        last_artist = artist  # update last seen artist
+        data.append({"Artist": artist, "Song": song})
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Sort alphabetically by Artist (case-insensitive)
+df = df.sort_values(by="Artist", key=lambda col: col.str.lower()).reset_index(drop=True)
+
+# Save to CSV
+df.to_csv("output.csv", index=False, encoding="utf-8-sig")
+
+print("CSV file saved as songs.csv")
