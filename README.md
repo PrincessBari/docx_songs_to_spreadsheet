@@ -1,0 +1,1 @@
+As a musician who creates compositions in Sibelius, I'd been keeping a Google doc of songs to transcribe. However, over time, it became about 9 pages long, so I felt that I should convert it into a spreadsheet.
